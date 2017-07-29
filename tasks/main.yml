@@ -1,0 +1,98 @@
+---
+- name: Check if Apache is installed
+  stat: path=/usr/sbin/apache2
+  register: apache2_binary
+
+- name: Create symlinks
+  file:
+    path: "{{ item.path }}"
+    src: "{{ item.src }}"
+    state: link
+    force: yes
+  with_items: "{{ typo3_install_symlinks }}"
+  when: typo3_install_symlinks is defined
+
+- name: Check if typo3cms console is there
+  stat:
+    path: "{{ typo3_install_siteroot }}{{ typo3_install_sitename }}/vendor/bin/typo3cms"
+  register: typo3cms
+
+- name: Remove any leftover {{ typo3_install_db_name }} database if it exists; it will be freshly created
+  command: "mysql -u{{ typo3_install_db_username }} -p{{ typo3_install_db_password }} -Bse 'DROP DATABASE IF EXISTS {{ typo3_install_db_name }}'"
+  changed_when: false
+  no_log: true
+
+- name: Execute non-interactive setup via TYPO3 console
+  shell: "vendor/bin/typo3cms install:setup --non-interactive -force --database-user-name=\"{{ typo3_install_db_username }}\" --database-user-password=\"{{ typo3_install_db_password }}\" --database-host-name=\"{{ typo3_install_db_hostname }}\" --database-port=\"{{ typo3_install_db_port }}\" --database-name=\"{{ typo3_install_db_name }}\" --admin-user-name=\"{{ typo3_install_admin_user }}\" --admin-password=\"{{ typo3_install_admin_password }}\" --site-name=\"{{ typo3_install_sys_sitename }}\""
+  args:
+    chdir: "{{ typo3_install_siteroot }}{{ typo3_install_sitename }}/"
+  no_log: true
+
+- name: Read encryption key from LocalConfiguration.php
+  shell: "cat {{ typo3_install_siteroot }}{{ typo3_install_sitename }}/{{ typo3_install_htdocs }}/typo3conf/LocalConfiguration.php | sed -n \"s/^.*'\\(encryptionKey\\)'.*'\\(.*\\)'.*$/\\2/p\""
+  register: typo3_install_sys_encryptionKey
+  no_log: true
+
+- name: Replace generated LocalConfiguration.php with extended version
+  template:
+    src: "LocalConfiguration_{{ typo3_install_cmsversion }}.php.j2"
+    dest: "{{ typo3_install_siteroot }}{{ typo3_install_sitename }}/{{ typo3_install_htdocs }}/typo3conf/LocalConfiguration.php"
+  no_log: true
+
+- name: Add .htaccess file to web directory
+  template:
+    src: "htaccess_{{ typo3_install_cmsversion }}.j2"
+    dest: "{{ typo3_install_siteroot }}{{ typo3_install_sitename }}/{{ typo3_install_htdocs }}/.htaccess"
+  when: apache2_binary.stat.exists == true # avoids chown problems on vagrant nfs mounts
+
+- name: Set file permissions for .htaccess
+  file:
+    path: "{{ typo3_install_siteroot }}{{ typo3_install_sitename }}/{{ typo3_install_htdocs }}/.htaccess"
+    owner: root
+    group: root
+    mode: u+rw,go+r
+  when: apache2_binary.stat.exists == true and ansible_product_name != 'VirtualBox' # avoids chown problems on vagrant nfs mounts
+
+- name: Set directory permissions for fileadmin, typo3temp, typo3conf and uploads
+  file:
+    path: "{{ typo3_install_siteroot }}{{ typo3_install_sitename }}/{{ typo3_install_htdocs }}/{{ item.path }}"
+    recurse: yes
+    owner: www-data
+    group: root
+    mode: "{{ item.permissions }}"
+  with_items:
+    - { path: "fileadmin/", permissions: "ugo-x" }
+    - { path: "fileadmin/", permissions: "u+rwX,go+rX,g-w,o-rwx" }
+    - { path: "typo3temp/", permissions: "ugo-x" }
+    - { path: "typo3temp/", permissions: "u+rwX,go+rX,go-w,o-rwx" }
+    - { path: "uploads/", permissions: "ugo-x" }
+    - { path: "uploads/", permissions: "u+rwX,go+rX,go-w,o-rwx" }
+    - { path: "typo3conf/", permissions: "ugo-x" }
+    - { path: "typo3conf/", permissions: "u+rwX,go+rX,go-w,o-rwx" }
+  when: ansible_product_name != 'VirtualBox' # avoids chown problems on vagrant nfd mounts
+
+- name: Deactivate extensions via TYPO3 console
+  shell: "vendor/bin/typo3cms extension:deactivate {{ item }}"
+  args:
+    chdir: "{{ siteroot }}{{ sitename }}/"
+  with_items: "{{ typo3_uninstall_extensions }}"
+  when: typo3_uninstall_extensions is defined
+
+- name: Activate extensions via TYPO3 console
+  shell: "vendor/bin/typo3cms extension:activate {{ item }}"
+  args:
+    chdir: "{{ siteroot }}{{ sitename }}/"
+  with_items: "{{ typo3_install_extensions }}"
+  when: typo3_install_extensions is defined
+
+- name: Update German language files
+  shell: "vendor/bin/typo3cms language:update de"
+  args:
+    chdir: "{{ siteroot }}{{ sitename }}/"
+  changed_when: false
+
+- name: Flush caches
+  shell: "vendor/bin/typo3cms cache:flush"
+  args:
+    chdir: "{{ typo3_install_siteroot }}{{ typo3_install_sitename }}/"
+  when: typo3cms.stat.exists

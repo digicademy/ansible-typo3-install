@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: "Torsten Schrade"
+  description: "Ansible role for installing and setting up TYPO3 CMS via composer and typo3_console "
+  company: "Digital Academy – Academy of Sciences and Literature | Mainz"
+  license: "MIT"
+  min_ansible_version: 2.0
+  platforms:
+    - name: Debian
+      versions:
+        - wheezy
+        - jessie
+  galaxy_tags:
+    - web
+    - typo3
+    - php
+    - composer
+
+dependencies:
+  - src: git+https://github.com/digicademy/ansible-typo3-composer.git
+    name: typo3-composer
