@@ -16,17 +16,48 @@ typo3_install_db_name: "t3_dummy"
 typo3_install_admin_user: "admin"
 typo3_install_admin_password: "password"
 
-typo3_install_be_debug: ""
-typo3_install_be_adminOnly: "0"
-typo3_install_be_installToolPassword: "$P$Cz67GwlnuzgIU9yGCPntxu/lbavxpr."
-typo3_install_be_compressionLevel: "9"
-typo3_install_be_diff_path: "/usr/bin/diff"
-typo3_install_be_unzip_path: "/usr/bin/unzip"
-typo3_install_be_disable_exec_function: "0"
-typo3_install_be_versionNumberInFilename: "0"
+typo3_install_local_configuration:
+  - { path: "BE/installToolPassword", value: "$P$CxyHuE82O8P0xWgzdUxD2gd9fU751a1" } # = "password"
+  - { path: "BE/compressionLevel", value: "9" }
+  - { path: "FE/compressionLevel", value: "9" }
+  - { path: "FE/disableNoCacheParameter", value: "1" }
+  - { path: "FE/versionNumberInFilename", value: "1" }
+  - { path: "FE/cHashRequiredParameters", value: "" }
+  - { path: "FE/pageNotFound_handling", value: "404.html" }
+  - { path: "FE/pageUnavailable_handling", value: "503.html" }
+  - { path: "GFX/jpg_quality", value: "100" }
+  - { path: "SYS/curlUse", value: "1" }
+  - { path: "SYS/systemLocale", value: "de_DE.utf8" }
+  - { path: "SYS/UTF8filesystem", value: "0" }
+  - { path: "SYS/fileCreateMask", value: "0660" }
+  - { path: "SYS/folderCreateMask", value: "2770" }
+  - { path: "SYS/maxFileNameLength", value: "255" }
 
-typo3_install_extconf: []
-# - "'key' => 'value'"
+# debug preset
+#   - { path: "BE/debug", value: "1" }
+#   - { path: "FE/debug", value: "1" }
+#   - { path: "SYS/devIPmask", value: "*" }
+#   - { path: "SYS/displayErrors", value: "1" }
+#   - { path: "SYS/enableDeprecationLog", value: "file" }
+#   - { path: "SYS/sqlDebug", value: "1" }
+#   - { path: "SYS/systemLogLevel", value: "0" }
+#   - { path: "SYS/clearCacheSystem", value: "1" }
+#   - { path: "SYS/exceptionalErrors", value: "0" }
+
+# production preset
+#   - { path: "BE/debug", value: "" }
+#   - { path: "FE/debug", value: "" }
+#   - { path: "SYS/devIPmask", value: "" }
+#   - { path: "SYS/displayErrors", value: "0" }
+#   - { path: "SYS/enableDeprecationLog", value: "" }
+#   - { path: "SYS/sqlDebug", value: "0" }
+#   - { path: "SYS/systemLogLevel", value: "2" }
+#   - { path: "SYS/clearCacheSystem", value: "" }
+#   - { path: "SYS/exceptionalErrors", value: "20480" }
+
+typo3_install_language_setup:
+  - en
+  - de
 
 # typo3_uninstall_extensions: []
 # - ext_name
@@ -34,51 +65,5 @@ typo3_install_extconf: []
 # typo3_install_extensions: []
 # - ext_name
 
-typo3_install_fe_debug: "false"
-typo3_install_fe_cHashIncludePageId: "true"
-typo3_install_fe_activateContentAdapter: "false"
-typo3_install_fe_compressionLevel: "9"
-typo3_install_fe_disableNoCacheParameter: "1"
-typo3_install_fe_versionNumberInFilename: "embed"
-typo3_install_fe_cHashRequiredParameters: ""
-typo3_install_fe_pageNotFound_handling: "404.html"
-typo3_install_fe_pageUnavailable_handling: "503.html"
-
-typo3_install_gfx_enable_typo3temp_db_tracking: "1"
-typo3_install_gfx_colorspace: "sRGB"
-typo3_install_gfx_gdlib_png: "1"
-typo3_install_gfx_im: "1"
-typo3_install_gfx_im_mask_temp_ext_gif: "1"
-typo3_install_gfx_im_noScaleUp: "1"
-typo3_install_gfx_im_path: "/usr/bin/"
-typo3_install_gfx_im_path_lzw: "/usr/bin/"
-typo3_install_gfx_im_v5effects: "1"
-typo3_install_gfx_im_version_5: "gm"
-typo3_install_gfx_image_processing: "1"
-typo3_install_gfx_jpg_quality: "100"
-
-typo3_install_mail_transport: "mail"
-typo3_install_mail_transport_sendmail_command: "/usr/sbin/sendmail -t -i "
-typo3_install_mail_transport_smtp_server: ""
-typo3_install_mail_transport_smtp_encrypt: ""
-typo3_install_mail_transport_smtp_password: ""
-typo3_install_mail_transport_smtp_username: ""
-
-typo3_install_sys_curlUse: "1"
-typo3_install_sys_clearCacheSystem: "true"
-typo3_install_sys_devIPmask: ""
-typo3_install_sys_displayErrors: "0"
-typo3_install_sys_enableDeprecationLog: ""
-typo3_install_sys_enable_DLOG: "0"
-typo3_install_sys_sqlDebug: "0"
-typo3_install_sys_systemLogLevel: "2"
-typo3_install_sys_exceptionalErrors: "28674"
-typo3_install_sys_systemLocale: "de_DE.utf8"
-typo3_install_sys_UTF8filesystem: "0"
-typo3_install_sys_fileCreateMask: "0660"
-typo3_install_sys_folderCreateMask: "2770"
-typo3_install_sys_maxFileNameLength: "255"
-typo3_install_sys_loginCopyrightShowVersion: "0"
-typo3_install_sys_loginCopyrightWarrantyProvider: ""
-typo3_install_sys_loginCopyrightWarrantyURL: ""
-typo3_install_sys_sitename: "dummy"
+# typo3_install_extconf: []
+# - "'key' => 'value'"
