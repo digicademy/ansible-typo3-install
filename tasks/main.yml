@@ -50,6 +50,14 @@
   no_log: true
   when: typo3_install_local_configuration is defined  and typo3cms.stat.exists == true
 
+- name: Set install tool password
+  shell: "vendor/bin/typo3cms configuration:set --path='BE/installToolPassword' --value='{{ typo3_install_tool_password }}'"
+  args:
+    chdir: "{{ typo3_install_siteroot }}{{ typo3_install_sitename }}/"
+  changed_when: false
+  no_log: true
+  when: typo3_install_tool_password is defined and typo3cms.stat.exists == true
+
 - name: Add .htaccess file to web directory
   template:
     src: "htaccess_{{ typo3_install_cmsversion }}.j2"
